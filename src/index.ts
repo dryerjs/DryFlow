@@ -1,15 +1,21 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import fs from 'fs';
 import express from 'express';
 import { prepare } from './db';
 import { jobService } from './job.service';
 import { runner } from './runner';
 
 prepare();
-
 const app = express();
 
-app.get('/', (_req, res) => {
-  res.sendFile('./index.html', { root: __dirname });
+app.get('/', async (_req, res) => {
+  const indexHtmlContent = fs.readFileSync(`${__dirname}/index.html`, 'utf-8');
+  const jobs = await jobService.getAll();
+  const replaced = indexHtmlContent.replace(
+    'let jobs = [];',
+    `let jobs = ${JSON.stringify(jobs)};`
+  );
+  res.send(replaced);
 });
 
 app.post('/v1/jobs', async (req, res) => {
