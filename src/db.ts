@@ -1,5 +1,5 @@
 import { Database } from 'sqlite3';
-
+import Knex from 'knex';
 export const db = new Database('db.sqlite');
 
 export function prepare(): void {
@@ -14,3 +14,11 @@ export function prepare(): void {
     )
   `);
 }
+
+export const knex = Knex({
+  client: 'sqlite3',
+  connection: {
+    filename: './db.sqlite',
+  },
+  useNullAsDefault: true,
+});

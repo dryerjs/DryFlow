@@ -1,4 +1,4 @@
-import { db } from './db';
+import { knex } from './db';
 
 export interface Job {
   id: number;
@@ -9,104 +9,49 @@ export interface Job {
 }
 
 class JobService {
-  create(input: any): Promise<Job> {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'INSERT INTO job (input, progress, status) VALUES (?, ?, ?)',
-        [JSON.stringify(input), 0, 'pending'],
-        function (err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({ id: this.lastID } as any);
-          }
-        }
-      );
-    });
+  async create(input: any): Promise<Job> {
+    const [id] = await knex('job')
+      .insert({
+        input: JSON.stringify(input),
+        progress: 0,
+        status: 'pending',
+        createdAt: knex.fn.now(),
+      })
+      .returning('id');
+    return { id } as Job;
   }
 
-  getAll(): Promise<Job[]> {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM job', (err, rows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows as Job[]);
-        }
-      });
-    });
+  async getAll(): Promise<Job[]> {
+    const jobs = await knex('job').select('*');
+    return jobs as Job[];
   }
 
-  get(id: number): Promise<Job | null> {
-    return new Promise((resolve, reject) => {
-      db.get('SELECT * FROM job WHERE id = ?', [id], (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row as Job);
-        }
-      });
-    });
+  async get(id: number): Promise<Job | null> {
+    return (await knex('job').where({ id }).first()) as Job | null;
   }
 
-  update(input: Partial<Job>): Promise<void> {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'UPDATE job SET progress = ?, status = ? WHERE id = ?',
-        [input.progress, input.status, input.id],
-        err => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        }
-      );
-    });
+  async update(input: Partial<Job> & { id: number }): Promise<void> {
+    await knex('job').where({ id: input.id }).update(input);
   }
 
-  paginate(page: number, limit: number): Promise<Job[]> {
-    return new Promise((resolve, reject) => {
-      db.all(
-        'SELECT * FROM job LIMIT ? OFFSET ?',
-        [limit, (page - 1) * limit],
-        (err, rows) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(rows as Job[]);
-          }
-        }
-      );
-    });
+  async paginate(page: number, limit: number): Promise<Job[]> {
+    const jobs = await knex('job')
+      .select('*')
+      .limit(limit)
+      .offset((page - 1) * limit);
+    return jobs as Job[];
   }
 
-  delete(id: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      db.run('DELETE FROM job WHERE id = ?', [id], err => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  async delete(id: number): Promise<void> {
+    await knex('job').where({ id }).del();
   }
 
   private async getLatestJobByStatus(status: string): Promise<Job | null> {
-    return new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM job WHERE status = ? ORDER BY createdAt DESC LIMIT 1',
-        [status],
-        (err, row) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve((row || null) as any);
-          }
-        }
-      );
-    });
+    const job: Job | null = await knex('job')
+      .where({ status })
+      .orderBy('createdAt', 'desc')
+      .first();
+    return job;
   }
 
   public async getOnePendingJob(): Promise<Job | null> {

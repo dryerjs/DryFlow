@@ -26,7 +26,7 @@ class Runner {
     await jobService.update({ id: job.id, status: 'running' });
     for (let i = 0; i < 20; i++) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      await jobService.update({ id: job.id, progress: 5 * i });
+      await jobService.update({ id: job.id, progress: 5 * (i + 1) });
     }
     await jobService.update({ id: job.id, status: 'completed' });
   }
