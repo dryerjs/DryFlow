@@ -1,8 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
+import { SPA } from './spa/SPA';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <div><h1>MongoFlow</h1></div>,
-  }
+    element: <SPA />,
+  },
 ]);

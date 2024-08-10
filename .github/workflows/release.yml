@@ -7,6 +7,7 @@ on:
       - main
 jobs:
   release:
+    if: github.ref == 'refs/heads/production'
     permissions:
       contents: write
       issues: write

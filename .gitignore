@@ -118,5 +118,5 @@ dist
 # Compiled code
 lib/
 .env
-.DS_Stors
+.DS_Store
 db.sqlite
