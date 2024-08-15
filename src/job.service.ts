@@ -34,12 +34,21 @@ class JobService {
     await knex('job').where({ id: input.id }).update(input);
   }
 
-  async paginate(page: number, limit: number): Promise<Job[]> {
+  async paginate(page: number, limit: number) {
     const jobs = await knex('job')
       .select('*')
       .limit(limit)
       .offset((page - 1) * limit);
-    return jobs as Job[];
+
+    const count = await knex('job').count('id').first();
+    return {
+      docs: jobs,
+      meta: {
+        total: parseInt(count?.count as string),
+        page,
+        limit,
+      },
+    };
   }
 
   async delete(id: number): Promise<void> {
