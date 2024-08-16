@@ -47,6 +47,8 @@ export const LoadingSpinner = ({ className }: { className?: string }) => {
   );
 };
 
+const LIMIT = 5;
+
 export interface Job {
   id: number;
   input: any;
@@ -74,17 +76,43 @@ interface IPaginationResponse<T> {
   };
 }
 
+const JobRow = ({ job }: { job: Job }) => {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{job.id}</TableCell>
+      <TableCell>
+        <Badge variant="outline">{job.status}</Badge>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">{job.progress}</TableCell>
+      <TableCell className="hidden md:table-cell">{job.createdAt}</TableCell>
+      <TableCell className="hidden md:table-cell">
+        2023-07-12 10:42 AM
+      </TableCell>
+      <TableCell>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button aria-haspopup="true" size="icon" variant="ghost">
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem>Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
+  );
+};
+
 export function ListOfJobs() {
   const [{ data, loading, error }, refetch] = useAxios<
     IPaginationResponse<Job>
-  >('/jobs?limit=5&page=1');
+  >(`/jobs?limit=${LIMIT}&page=1`);
 
-  if (loading) return <p>Loading...</p>;
   if (error) return <p>Error!</p>;
-
-  if (loading) {
-    return <LoadingSpinner className="mx-auto mt-40" />;
-  }
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -169,58 +197,25 @@ export function ListOfJobs() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data!.docs.map((job) => {
-                    return (
-                      <TableRow key={job.id}>
-                        <TableCell className="font-medium">{job.id}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{job.status}</Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {job.progress}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {job.createdAt}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          2023-07-12 10:42 AM
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                aria-haspopup="true"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
-                              <DropdownMenuItem>Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {!loading &&
+                    data!.docs.map((job) => <JobRow job={job} key={job.id} />)}
                 </TableBody>
               </Table>
+              {loading && <LoadingSpinner className="mx-auto mt-4" />}
             </CardContent>
-            <CardFooter>
-              <CustomPagination
-                total={data!.meta.total}
-                totalPages={Math.ceil(data!.meta.total / data!.meta.limit)}
-                limit={data!.meta.limit}
-                page={data!.meta.page}
-                setPage={(page: number) => {
-                  refetch({ url: `/jobs?limit=5&page=${page}` });
-                }}
-              />
-            </CardFooter>
+            {!loading && (
+              <CardFooter>
+                <CustomPagination
+                  total={data!.meta.total}
+                  totalPages={Math.ceil(data!.meta.total / data!.meta.limit)}
+                  limit={data!.meta.limit}
+                  page={data!.meta.page}
+                  setPage={(page: number) => {
+                    refetch({ url: `/jobs?limit=${LIMIT}&page=${page}` });
+                  }}
+                />
+              </CardFooter>
+            )}
           </Card>
         </TabsContent>
       </Tabs>
