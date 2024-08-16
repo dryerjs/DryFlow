@@ -55,15 +55,6 @@ export interface Job {
   createdAt: string;
 }
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import {
   Card,
   CardContent,
   CardDescription,
@@ -72,11 +63,21 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CustomPagination } from '@/lib/CustomPagination';
+
+interface IPaginationResponse<T> {
+  docs: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
 
 export function ListOfJobs() {
-  const [{ data, loading, error }, refetch] = useAxios<{ docs: Job[] }>(
-    '/jobs?limit=5&page=1',
-  );
+  const [{ data, loading, error }, refetch] = useAxios<
+    IPaginationResponse<Job>
+  >('/jobs?limit=5&page=1');
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error!</p>;
@@ -210,30 +211,15 @@ export function ListOfJobs() {
               </Table>
             </CardContent>
             <CardFooter>
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious href="#" />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#">1</PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#" isActive>
-                      2
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink href="#">3</PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext href="#" />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <CustomPagination
+                total={data!.meta.total}
+                totalPages={Math.ceil(data!.meta.total / data!.meta.limit)}
+                limit={data!.meta.limit}
+                page={data!.meta.page}
+                setPage={(page: number) => {
+                  refetch({ url: `/jobs?limit=5&page=${page}` });
+                }}
+              />
             </CardFooter>
           </Card>
         </TabsContent>
