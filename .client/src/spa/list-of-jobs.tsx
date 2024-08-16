@@ -59,7 +59,13 @@ interface IPaginationResponse<T> {
   };
 }
 
-const JobRow = ({ job }: { job: Job }) => {
+const JobRow = ({
+  job,
+  deleteJob,
+}: {
+  job: Job;
+  deleteJob: (job: Job) => void;
+}) => {
   return (
     <TableRow>
       <TableCell className="font-medium">{job.id}</TableCell>
@@ -82,7 +88,9 @@ const JobRow = ({ job }: { job: Job }) => {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => deleteJob(job)}>
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
@@ -109,14 +117,26 @@ export const ListOfJobs = () => {
     IPaginationResponse<Job>
   >(getUrl(page, status));
 
+  const [__, execute] = useAxios<Job[]>(
+    { method: 'DELETE', url: 'placeholder' },
+    { manual: true },
+  );
+
   if (error) return <p>Error!</p>;
 
   const tabs = [
     { value: 'all', label: 'All' },
     { value: 'in_progress', label: 'In Progress' },
     { value: 'completed', label: 'Completed' },
-    { value: 'archived', label: 'Archived' },
+    { value: 'canceled', label: 'Canceled' },
   ];
+
+  const deleteJob = async (job: Job) => {
+    await execute({ url: `jobs/${job.id}` });
+    const newStatus = searchParams.get('status') || 'all';
+    await refetch({ url: getUrl(page, newStatus) });
+    setSearchParams({ page: page.toString(), status: newStatus });
+  };
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
@@ -208,7 +228,9 @@ export const ListOfJobs = () => {
                 </TableHeader>
                 <TableBody>
                   {!loading &&
-                    data!.docs.map((job) => <JobRow job={job} key={job.id} />)}
+                    data!.docs.map((job) => (
+                      <JobRow job={job} key={job.id} deleteJob={deleteJob} />
+                    ))}
                 </TableBody>
               </Table>
               {loading && <LoadingSpinner className="mx-auto mt-4" />}
@@ -220,11 +242,13 @@ export const ListOfJobs = () => {
                   totalPages={Math.ceil(data!.meta.total / data!.meta.limit)}
                   limit={data!.meta.limit}
                   page={data!.meta.page}
-                  setPage={(page: number) => {
+                  setPage={async (page: number) => {
                     const newStatus = searchParams.get('status') || 'all';
-                    refetch({ url: getUrl(page, newStatus) }).then(() =>
-                      setSearchParams({ page: page.toString() }),
-                    );
+                    await refetch({ url: getUrl(page, newStatus) });
+                    setSearchParams({
+                      page: page.toString(),
+                      status: newStatus,
+                    });
                   }}
                 />
               </CardFooter>
