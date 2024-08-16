@@ -40,11 +40,14 @@ class JobService {
       .limit(limit)
       .offset((page - 1) * limit);
 
-    const count = await knex('job').count('id').first();
+    const { total } = await knex('job')
+      .count('id as total')
+      .first<{ total: number }>();
+
     return {
       docs: jobs,
       meta: {
-        total: parseInt(count?.count as string),
+        total,
         page,
         limit,
       },

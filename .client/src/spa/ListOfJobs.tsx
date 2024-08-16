@@ -171,7 +171,7 @@ export function ListOfJobs() {
                 <TableBody>
                   {data!.docs.map((job) => {
                     return (
-                      <TableRow>
+                      <TableRow key={job.id}>
                         <TableCell className="font-medium">{job.id}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{job.status}</Badge>
