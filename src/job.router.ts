@@ -14,6 +14,16 @@ router.post('/', async (req, res) => {
   res.send(job);
 });
 
+const toArray = (value: string | string[] | undefined) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    return value.split(',');
+  }
+  return value;
+};
+
 router.get('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   const job = await jobService.get(id);
@@ -23,7 +33,9 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
-  const jobs = await jobService.paginate(page, limit);
+  const statuses = toArray(req.query.statuses as any);
+  const filter = { statuses };
+  const jobs = await jobService.paginate(page, limit, filter);
   res.send(jobs);
 });
 

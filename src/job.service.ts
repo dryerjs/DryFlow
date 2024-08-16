@@ -1,3 +1,4 @@
+import { Knex } from 'knex';
 import { knex } from './db';
 
 export interface Job {
@@ -34,13 +35,20 @@ class JobService {
     await knex('job').where({ id: input.id }).update(input);
   }
 
-  async paginate(page: number, limit: number) {
-    const jobs = await knex('job')
+  async paginate(page: number, limit: number, filter: { statuses?: string[] }) {
+    const applyFilter = (queryBuilder: Knex.QueryBuilder) => {
+      if (filter.statuses) {
+        return queryBuilder.whereIn('status', filter.statuses);
+      }
+      return queryBuilder;
+    };
+
+    const jobs = await applyFilter(knex('job'))
       .select('*')
       .limit(limit)
       .offset((page - 1) * limit);
 
-    const { total } = await knex('job')
+    const { total } = await applyFilter(knex('job'))
       .count('id as total')
       .first<{ total: number }>();
 

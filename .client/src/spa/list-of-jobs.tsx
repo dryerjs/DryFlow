@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import {
   ListFilter,
   MoreHorizontal,
@@ -45,7 +46,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CustomPagination } from '@/lib/CustomPagination';
+import { CustomPagination } from '@/components/custom-pagination';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface IPaginationResponse<T> {
@@ -88,24 +89,51 @@ const JobRow = ({ job }: { job: Job }) => {
   );
 };
 
-export function ListOfJobs() {
+const getUrl = (page: number, status: string) => {
+  const searchParams = new URLSearchParams();
+  searchParams.append('limit', LIMIT.toString());
+  searchParams.append('page', page.toString());
+  if (['in_progress', 'completed', 'archived'].includes(status)) {
+    searchParams.append('statuses', status);
+  }
+  return `/jobs?${searchParams.toString()}`;
+};
+
+export const ListOfJobs = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get('page')) || 1;
+  const status = searchParams.get('status') || 'all';
+
   const [{ data, loading, error }, refetch] = useAxios<
     IPaginationResponse<Job>
-  >(`/jobs?limit=${LIMIT}&page=1`);
+  >(getUrl(page, status));
 
   if (error) return <p>Error!</p>;
 
+  const tabs = [
+    { value: 'all', label: 'All' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'archived', label: 'Archived' },
+  ];
+
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-      <Tabs defaultValue="all">
+      <Tabs defaultValue={status}>
         <div className="flex items-center">
           <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="draft">Draft</TabsTrigger>
-            <TabsTrigger value="archived" className="hidden sm:flex">
-              Archived
-            </TabsTrigger>
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                onClick={() => {
+                  refetch({ url: getUrl(1, tab.value) });
+                  setSearchParams({ status: tab.value, page: '1' });
+                }}
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
           <div className="ml-auto flex items-center gap-2">
             <Button
@@ -149,7 +177,7 @@ export function ListOfJobs() {
             </Button>
           </div>
         </div>
-        <TabsContent value="all">
+        <TabsContent value={status}>
           <Card x-chunk="dashboard-06-chunk-0">
             <CardHeader>
               <CardTitle>Jobs</CardTitle>
@@ -192,7 +220,10 @@ export function ListOfJobs() {
                   limit={data!.meta.limit}
                   page={data!.meta.page}
                   setPage={(page: number) => {
-                    refetch({ url: `/jobs?limit=${LIMIT}&page=${page}` });
+                    const newStatus = searchParams.get('status') || 'all';
+                    refetch({ url: getUrl(page, newStatus) }).then(() =>
+                      setSearchParams({ page: page.toString() }),
+                    );
                   }}
                 />
               </CardFooter>
@@ -202,4 +233,4 @@ export function ListOfJobs() {
       </Tabs>
     </main>
   );
-}
+};
