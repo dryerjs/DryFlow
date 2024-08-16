@@ -35,9 +35,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { ListOfJobs } from './ListOfJobs';
+import { ModeToggle } from '@/components/mode-toggle';
 
-export function SPA() {
+import { ListOfJobs } from './list-of-jobs';
+
+export function SinglePageApplication() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -123,6 +125,7 @@ export function SPA() {
             </TooltipTrigger>
             <TooltipContent side="right">Settings</TooltipContent>
           </Tooltip>
+          <ModeToggle />
         </nav>
       </aside>
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">

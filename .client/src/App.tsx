@@ -1,4 +1,5 @@
 import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { RouterProvider } from 'react-router-dom';
 import { configure } from 'axios-hooks';
@@ -14,9 +15,11 @@ configure({ axios });
 
 function App() {
   return (
-    <TooltipProvider>
-      <RouterProvider router={router} />
-    </TooltipProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <TooltipProvider>
+        <RouterProvider router={router} />
+      </TooltipProvider>
+    </ThemeProvider>
   );
 }
 
