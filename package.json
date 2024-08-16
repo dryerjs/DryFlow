@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dryerjs/simple-flow.git"
+    "url": "git+https://github.com/dryerjs/DryFlow.git"
   },
   "license": "MIT",
   "author": {
