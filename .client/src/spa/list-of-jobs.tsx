@@ -5,6 +5,7 @@ import {
   PlusCircle,
   File,
   RefreshCcw,
+  Inbox,
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -226,6 +227,11 @@ export const ListOfJobs = () => {
                     );
                   }}
                 />
+              </CardFooter>
+            )}
+            {!loading && data!.docs.length === 0 && (
+              <CardFooter className="justify-center">
+                <Inbox className="h-12 w-12 text-gray-400 block" />
               </CardFooter>
             )}
           </Card>
