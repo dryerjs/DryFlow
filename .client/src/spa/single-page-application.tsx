@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import {
+  Bell,
+  Cable,
+  ClipboardCheck,
   Home,
   LineChart,
-  Package,
   Package2,
   PanelLeft,
   Search,
   Settings,
-  ShoppingCart,
   UserRound,
   Users2,
 } from 'lucide-react';
@@ -69,19 +70,7 @@ export function SinglePageApplication() {
                 to="#"
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <ShoppingCart className="h-5 w-5" />
-                <span className="sr-only">Orders</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Orders</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                to="#"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <Package className="h-5 w-5" />
+                <ClipboardCheck className="h-5 w-5" />
                 <span className="sr-only">Jobs</span>
               </Link>
             </TooltipTrigger>
@@ -93,11 +82,11 @@ export function SinglePageApplication() {
                 to="#"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <Users2 className="h-5 w-5" />
-                <span className="sr-only">Customers</span>
+                <Cable className="h-5 w-5" />
+                <span className="sr-only">Integrations</span>
               </Link>
             </TooltipTrigger>
-            <TooltipContent side="right">Customers</TooltipContent>
+            <TooltipContent side="right">Integrations</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -105,11 +94,11 @@ export function SinglePageApplication() {
                 to="#"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
-                <LineChart className="h-5 w-5" />
-                <span className="sr-only">Analytics</span>
+                <Bell className="h-5 w-5" />
+                <span className="sr-only">Notifications</span>
               </Link>
             </TooltipTrigger>
-            <TooltipContent side="right">Analytics</TooltipContent>
+            <TooltipContent side="right">Notifications</TooltipContent>
           </Tooltip>
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
@@ -157,15 +146,14 @@ export function SinglePageApplication() {
                   to="#"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
-                  <ShoppingCart className="h-5 w-5" />
                   Orders
                 </Link>
                 <Link
                   to="#"
                   className="flex items-center gap-4 px-2.5 text-foreground"
                 >
-                  <Package className="h-5 w-5" />
-                  Jobs
+                  <Cable className="h-5 w-5" />
+                  Integration
                 </Link>
                 <Link
                   to="#"

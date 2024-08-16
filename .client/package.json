@@ -1,5 +1,5 @@
 {
-  "name": "mongo-flow-client",
+  "name": "dryflow-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",

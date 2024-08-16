@@ -3,7 +3,7 @@ import { SinglePageApplication } from './spa/single-page-application';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/jobs',
     element: <SinglePageApplication />,
   },
 ]);
